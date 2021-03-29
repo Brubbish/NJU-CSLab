@@ -2,11 +2,13 @@
 #include "expr.h"
 #include "watchpoint.h"
 
+#include "../../../include/cpu/exec.h"
+
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 
-#include "../../../include/memory/vaddr.h"
+
 
 void cpu_exec(uint64_t);
 int is_batch_mode();
@@ -44,7 +46,7 @@ static int cmd_help(char *args);
 //add
 static int cmd_s(char *args);
 static int info(char *args);
-//static int cmd_x(char *args);
+static int cmd_x(char *args);
 
 
 static struct {
@@ -57,7 +59,7 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "s", "Step", cmd_s},
   { "info", "info regs", info},
-//  { "x N EXPR", "x", cmd_x} ,
+  { "x", "x [N] [EXPR]", cmd_x} ,
 
   /* TODO: Add more commands */
 
@@ -65,7 +67,7 @@ static struct {
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
 
-//add
+//add 3 funcs in PA1.3
 static int cmd_s(char *args){
 	int n;
 	if( args == NULL)
@@ -97,31 +99,37 @@ static int info (char *args){
 	return 0;
 }
 
-
-/*
-static int cmd_x(char *args){
-	if(args == NULL){
-		printf("Wrong\n");
-		return 0;
+static char* full_expr(){	
+	char *arg = strtok(NULL, " ");
+	if(arg == NULL) return NULL;
+	char *argg = strtok(NULL, " ");
+	while(argg != NULL){
+		strcat(arg, argg);
+		argg = strtok(NULL, " ");
 	}
-	int num,exprs;
-	sscanf(args, "%d%x", &num,&exprs);
-	int i;
-	for(i=0;i<num;i++){
-		printf("0x%8x   0x%x\n",exprs + i*32, vaddr_read(exprs + i*32,32));
+	return arg;
+}
+
+static int cmd_x(char *args){
+	char *arg = strtok(NULL, " ");
+	if(arg == NULL) return 0;
+	int n = 0, i;
+	sscanf(arg, "%d", &n);
+
+	/* There may be some blank spaces in the expression. */
+	arg = full_expr();
+	if(arg == NULL) return 0;
+
+	bool success = true;
+	uint32_t value = expr(arg, &success);
+	if(!success) return 0;
+	for(i = 0; i < n; ++ i){
+		printf("0x%08x: ", value);
+		printf("0x%08x\n", instr_fetch(&value, 4));
 	}
 	return 0;
-
-
-
-	char *arg1 = strtok(NULL," ");
-	int n = atoi(arg1);
-	char *arg2 = strtok(NULL," ");
-	int expr = 0;
-	
-
 }
-*/
+
 
 
 
