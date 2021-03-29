@@ -115,7 +115,7 @@ static int cmd_x(char *args){
 	if(arg == NULL) return 0;
 	int n = 0, i;
 	sscanf(arg, "%d", &n);
-
+	printf("%d",n);
 	/* There may be some blank spaces in the expression. */
 	arg = full_expr();
 	if(arg == NULL) return 0;
