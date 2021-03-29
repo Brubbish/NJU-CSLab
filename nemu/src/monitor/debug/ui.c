@@ -115,13 +115,14 @@ static int cmd_x(char *args){
 	if(arg == NULL) return 0;
 	int n = 0, i;
 	sscanf(arg, "%d", &n);
-	printf("%d",n);
+
 	/* There may be some blank spaces in the expression. */
 	arg = full_expr();
 	if(arg == NULL) return 0;
 
 	bool success = true;
 	uint32_t value = expr(arg, &success);
+	printf("%d",success);
 	if(!success) return 0;
 	for(i = 0; i < n; ++ i){
 		printf("0x%08x: ", value);
